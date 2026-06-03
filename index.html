@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>tnpgecg</title>
+    <script>
+      window.addEventListener('error', function(event) {
+        showCrashReport('Error: ' + event.message, event.filename + ':' + event.lineno + ':' + event.colno, event.error ? event.error.stack : 'No stack trace');
+      });
+      window.addEventListener('unhandledrejection', function(event) {
+        showCrashReport('Promise Rejection: ' + event.reason, 'Unhandled Rejection', event.reason && event.reason.stack ? event.reason.stack : JSON.stringify(event.reason));
+      });
+
+      function showCrashReport(title, subtitle, details) {
+        var crashDiv = document.getElementById('global-crash-diagnostic');
+        if (crashDiv) return; // already showing
+        
+        crashDiv = document.createElement('div');
+        crashDiv.id = 'global-crash-diagnostic';
+        crashDiv.style.position = 'fixed';
+        crashDiv.style.inset = '0';
+        crashDiv.style.zIndex = '999999';
+        crashDiv.style.backgroundColor = '#fef2f2';
+        crashDiv.style.color = '#991b1b';
+        crashDiv.style.fontFamily = 'monospace';
+        crashDiv.style.padding = '32px';
+        crashDiv.style.overflow = 'auto';
+        crashDiv.style.display = 'flex';
+        crashDiv.style.flexDirection = 'column';
+        crashDiv.style.alignItems = 'center';
+        crashDiv.style.justifyContent = 'center';
+
+        var inner = document.createElement('div');
+        inner.style.backgroundColor = '#ffffff';
+        inner.style.border = '1px solid #fee2e2';
+        inner.style.borderRadius = '16px';
+        inner.style.padding = '32px';
+        inner.style.maxWidth = '800px';
+        inner.style.width = '100%';
+        inner.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)';
+
+        var h3 = document.createElement('h3');
+        h3.innerText = '🚨 Critical System Crash Detected';
+        h3.style.fontSize = '24px';
+        h3.style.fontWeight = 'bold';
+        h3.style.margin = '0 0 8px 0';
+        inner.appendChild(h3);
+
+        var p = document.createElement('p');
+        p.innerText = 'The TNP Portal crashed due to an unhandled frontend exception. Here are the diagnostics:';
+        p.style.color = '#4b5563';
+        p.style.margin = '0 0 20px 0';
+        inner.appendChild(p);
+
+        var detailsBox = document.createElement('div');
+        detailsBox.style.backgroundColor = '#fef2f2';
+        detailsBox.style.border = '1px solid #fee2e2';
+        detailsBox.style.borderRadius = '8px';
+        detailsBox.style.padding = '16px';
+        detailsBox.style.margin = '0 0 20px 0';
+        detailsBox.style.fontSize = '14px';
+        detailsBox.style.whiteSpace = 'pre-wrap';
+        detailsBox.style.wordBreak = 'break-all';
+
+        var boldTitle = document.createElement('div');
+        boldTitle.innerText = title;
+        boldTitle.style.fontWeight = 'bold';
+        boldTitle.style.marginBottom = '8px';
+        detailsBox.appendChild(boldTitle);
+
+        var boldSub = document.createElement('div');
+        boldSub.innerText = 'Location: ' + subtitle;
+        boldSub.style.fontSize = '12px';
+        boldSub.style.color = '#7f1d1d';
+        boldSub.style.marginBottom = '12px';
+        detailsBox.appendChild(boldSub);
+
+        var preStack = document.createElement('pre');
+        preStack.innerText = details;
+        preStack.style.margin = '0';
+        preStack.style.fontSize = '11px';
+        preStack.style.maxHeight = '300px';
+        preStack.style.overflow = 'auto';
+        detailsBox.appendChild(preStack);
+        
+        inner.appendChild(detailsBox);
+
+        var btn = document.createElement('button');
+        btn.innerText = 'Clear Cache & Refresh Page';
+        btn.style.backgroundColor = '#2563eb';
+        btn.style.color = '#ffffff';
+        btn.style.border = 'none';
+        btn.style.borderRadius = '8px';
+        btn.style.padding = '12px 24px';
+        btn.style.fontSize = '14px';
+        btn.style.fontWeight = 'bold';
+        btn.style.cursor = 'pointer';
+        btn.onclick = function() {
+          window.location.reload(true);
+        };
+        inner.appendChild(btn);
+
+        crashDiv.appendChild(inner);
+        document.body.appendChild(crashDiv);
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
