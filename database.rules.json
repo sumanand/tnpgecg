@@ -1,0 +1,171 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    /* ================= USERS (Private: Locked) ================= */
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid",
+        ".validate": "newData.hasChildren(['email'])",
+        ".indexOn": ["role", "email", "isAdmin"]
+      }
+    },
+
+    /* ================= ADMINS (Private: Locked) ================= */
+    "admins": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$adminId": {
+        ".read": "auth != null && (auth.uid == $adminId || root.child('users/'+auth.uid+'/role').val() == 'admin' || root.child('users/'+auth.uid+'/isAdmin').val() == true)",
+        ".write": "auth != null && (auth.uid == $adminId || root.child('users/'+auth.uid+'/role').val() == 'admin' || root.child('users/'+auth.uid+'/isAdmin').val() == true)"
+      }
+    },
+
+    /* ================= STUDENTS (Private: Locked) ================= */
+    "students": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$studentId": {
+        ".read": "auth != null && (auth.uid == $studentId || root.child('users/'+auth.uid+'/role').val() == 'admin' || root.child('users/'+auth.uid+'/isAdmin').val() == true)",
+        ".write": "auth != null && (auth.uid == $studentId || root.child('users/'+auth.uid+'/role').val() == 'admin' || root.child('users/'+auth.uid+'/isAdmin').val() == true)",
+        ".validate": "newData.hasChildren(['name','email','rollNo','branch','cgpa'])",
+        "cgpa": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10"
+        },
+        "email": {
+          ".validate": "newData.isString() && newData.val().contains('@')"
+        }
+      },
+      ".indexOn": ["branch", "cgpa", "rollNo", "passingYear"]
+    },
+
+    /* ================= COMPANIES (Homepage Recruiter Logos: Public Read) ================= */
+    "companies": {
+      ".read": true,
+      ".write": "auth != null",
+      "$companyId": {
+        ".read": true,
+        ".write": "auth != null",
+        ".validate": "newData.hasChildren(['name','email'])"
+      },
+      ".indexOn": ["name", "industry", "status"]
+    },
+
+    /* ================= NOTICES (Locked) ================= */
+    "notices": {
+      ".read": "auth != null",
+      ".write": "auth != null && (root.child('users/'+auth.uid+'/role').val() == 'admin' || root.child('users/'+auth.uid+'/isAdmin').val() == true)",
+      "$noticeId": {
+        ".validate": "newData.hasChildren(['title','message','createdAt'])",
+        "title": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "message": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        }
+      },
+      ".indexOn": ["createdAt", "priority"]
+    },
+
+    /* ================= TESTS (Locked) ================= */
+    "tests": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users/'+auth.uid+'/role').val() == 'admin'",
+      "$testId": {
+        ".validate": "newData.hasChildren(['title'])",
+        "duration": {
+          ".validate": "newData.isNumber() && newData.val() > 0"
+        }
+      }
+    },
+
+    /* ================= LINKS (Locked) ================= */
+    "links": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users/'+auth.uid+'/role').val() == 'admin'",
+      "$linkId": {
+        ".validate": "newData.hasChildren(['title','url'])",
+        "url": {
+          ".validate": "newData.isString()"
+        }
+      }
+    },
+
+    /* ================= LEADERBOARD (Locked) ================= */
+    "leaderboard": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && (auth.uid == $uid || root.child('users/'+auth.uid+'/role').val() == 'admin')",
+        ".validate": "newData.hasChildren(['name','score'])",
+        "score": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        }
+      },
+      ".indexOn": ["score", "rank"]
+    },
+
+    /* ================= PLACEMENT DRIVES (Homepage Active Drives: Public Read) ================= */
+    "placement_drives": {
+      ".read": true,
+      ".write": "auth != null && (root.child('users/'+auth.uid+'/role').val() == 'admin' || root.child('users/'+auth.uid+'/role').val() == 'company')",
+      "$driveId": {
+        ".validate": "newData.hasChildren(['title','company','deadline'])"
+      },
+      ".indexOn": ["company", "deadline", "status"]
+    },
+
+    /* ================= INTERNSHIP DRIVES (Homepage Active Drives: Public Read) ================= */
+    "internship_drives": {
+      ".read": true,
+      ".write": "auth != null && (root.child('users/'+auth.uid+'/role').val() == 'admin' || root.child('users/'+auth.uid+'/role').val() == 'company')",
+      "$internshipId": {
+        ".validate": "newData.hasChildren(['title','company','deadline'])"
+      },
+      ".indexOn": ["company", "deadline", "status"]
+    },
+
+    /* ================= APPLICATIONS (Locked) ================= */
+    "applications": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$applicationId": {
+        ".read": "auth != null",
+        ".write": "auth != null",
+        ".validate": "newData.hasChildren(['studentId','driveId','status'])"
+      },
+      ".indexOn": ["studentId", "driveId", "status"]
+    },
+
+    /* ================= NOTIFICATIONS (Public Read for Public Notices) ================= */
+    "notifications": {
+      ".read": true,
+      ".write": "auth != null",
+      "$notificationId": {
+        ".read": true,
+        ".write": "auth != null",
+        ".validate": "newData.hasChildren(['title','message','createdAt'])"
+      },
+      ".indexOn": ["studentId", "type", "createdAt"]
+    },
+
+    /* ================= SELECTED STUDENTS (Homepage Placed Directory: Public Read) ================= */
+    "selected_students": {
+      ".read": true,
+      ".write": "auth != null && (root.child('users/'+auth.uid+'/role').val() == 'admin' || root.child('users/'+auth.uid+'/role').val() == 'company')",
+      "$selectionId": {
+        ".validate": "newData.hasChildren(['studentId','companyId','position'])"
+      },
+      ".indexOn": ["studentId", "companyId"]
+    },
+
+    /* ================= CAROUSEL SLIDES (Public Read / Admin Write) ================= */
+    "carousel_slides": {
+      ".read": true,
+      ".write": "auth != null && (root.child('users/'+auth.uid+'/role').val() == 'admin' || root.child('users/'+auth.uid+'/isAdmin').val() == true)"
+    }
+  }
+}
